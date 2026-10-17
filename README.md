@@ -1,4 +1,6 @@
-# Exact Recorder
+# Wisp
+
+Simple recording. Full-quality sound.
 
 A small macOS audio recorder built with Exact. Choose a microphone and destination folder, then record uncompressed WAV audio. Pause and resume keep one recording and exclude paused time. A draggable floating bar stays above other windows with the timer, Pause/Resume, End, and Cancel controls. Cancel works while recording or paused, stops microphone capture, moves only the current take to Trash, and resets the timer.
 
@@ -16,7 +18,7 @@ To build without launching:
 bun exact.mjs mac --bundle
 ```
 
-The build prints the path to `Exact Recorder.app`. The microphone and destination folder are remembered between launches. Microphone permission is requested when recording starts. Stop or End finishes the WAV file before reporting it saved. Show in Finder reveals the last completed recording. Move to Trash deletes that saved take from its folder while keeping it recoverable in macOS Trash.
+The build prints the path to `Wisp.app`. The microphone and destination folder are remembered between launches. Microphone permission is requested when recording starts. Stop or End finishes the WAV file before reporting it saved. Show in Finder reveals the last completed recording. Move to Trash deletes that saved take from its folder while keeping it recoverable in macOS Trash.
 
 Click the destination folder name to open it in Finder. Recents shows the latest 20 audio files directly inside that folder, newest modification first, including files made outside this app. Click a filename to open it in your default audio app, or its X to move it to Trash. The list refreshes after saving, deleting, changing folders, returning to the app, or pressing its refresh button. Hidden files, subfolders, and symbolic links are excluded.
 
@@ -55,3 +57,7 @@ Exact's agent mode supplies two simulated microphones and writes a synthetic WAV
 After correcting a USB microphone format-conversion defect, live validation produced a 48 kHz, 24-bit Shure MV7+ WAV. Its peak was -9.5 dB and the user confirmed clear voice playback. The user confirmed the floating bar was visible and playback sounded normal with the Shure selected. See `docs/exact-experience.md` for framework feedback and remaining verification limits.
 
 After changing native code, use `bun exact.mjs mac --bundle` before launching the desktop app. The test command updates its standalone test executable, not an existing desktop bundle. Stop and quit the app before replacing its bundle.
+
+## App identity
+
+Wisp retains the internal bundle identifier `com.rami.exact-recorder` from its original name so existing microphone permissions and saved preferences continue to apply. The framework dependency remains the sibling `../exact2` checkout.

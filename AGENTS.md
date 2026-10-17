@@ -20,6 +20,10 @@ Generated, so don't edit: `exact.mjs`, `rust-toolchain.toml`, `.cargo/config.tom
 `Cargo.toml`'s `[patch.crates-io]` and this block.
 <!-- exact:end -->
 
+## Wisp naming
+
+The app and repository are named Wisp (`wisp`). Keep the internal bundle identifier `com.rami.exact-recorder` stable to preserve existing permissions and preferences. The scaffold name in the generated block above is historical; do not manually rewrite that block.
+
 ## Recorder design and verification
 
 - This is a compact native Mac utility. Use system typography and semantic colors. The timer and recording action are the focal point; microphone and destination belong in one settings group; saved-file actions belong together.

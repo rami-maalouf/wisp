@@ -1,13 +1,13 @@
 {
   "$schema": "../exact2/scripts/app.schema.json",
-  "name": "Exact Recorder",
-  "short_name": "Exact Recorder",
+  "name": "Wisp",
+  "short_name": "Wisp",
   "id": "com.rami.exact-recorder",
   "start_url": "/",
   "display": "standalone",
   "app": {
     "id": "com.rami.exact-recorder",
-    "name": "Exact Recorder"
+    "name": "Wisp"
   },
   "host": {
     "ios": {

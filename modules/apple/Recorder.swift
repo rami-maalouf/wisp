@@ -231,7 +231,7 @@ final class Recorder: ExactModule {
             DispatchQueue.main.async {
                 guard let self, !self.destroyed else { return }
                 guard granted else {
-                    return self.failStart("Microphone access is off. Enable Exact Recorder in System Settings > Privacy & Security > Microphone.")
+                    return self.failStart("Microphone access is off. Enable Wisp in System Settings > Privacy & Security > Microphone.")
                 }
                 do {
                     let url = try self.destination()
