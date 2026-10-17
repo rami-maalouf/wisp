@@ -74,7 +74,7 @@ final class Recorder: ExactModule {
 
     override func later(_ request: [String: Any], reply: ExactReply) {
         let op = request["op"] as? String ?? ""
-        if phase != "idle" && !["stop", "pause", "resume", "reveal"].contains(op) {
+        if phase != "idle" && !["stop", "pause", "resume", "cancel", "reveal"].contains(op) {
             return self.reply(reply, error: "Stop the current recording before changing its settings.")
         }
         switch op {
@@ -89,6 +89,7 @@ final class Recorder: ExactModule {
         case "folder": chooseFolder(reply)
         case "start": start(reply)
         case "stop": stop(reply)
+        case "cancel": cancel(reply)
         case "pause": pause(reply)
         case "resume": resume(reply)
         case "reveal":
@@ -180,6 +181,7 @@ final class Recorder: ExactModule {
                 if self.phase == "paused" { self.resume(nil) } else { self.pause(nil) }
             }
             bar.end = { [weak self] in self?.stop(nil) }
+            bar.cancel = { [weak self] in self?.cancel(nil) }
             floatingBar = bar
             bar.show()
         }
@@ -267,8 +269,35 @@ final class Recorder: ExactModule {
         } else { capture?.stop() }
     }
 
+    private func cancel(_ reply: ExactReply?) {
+        guard phase == "recording" || phase == "paused" else { return self.reply(reply, error: "No recording is in progress.") }
+        phase = "cancelling"
+        tick?.stop()
+        tick = nil
+        stopReply = reply
+        updateBar()
+        context.changed("status")
+        if context.agent { finish(url: nil, error: nil) }
+        else { capture?.stop(validate: false) }
+    }
+
     private func finish(url: URL?, error: Error?) {
         guard !destroyed else { quitDone?(); quitDone = nil; return }
+        var url = url
+        var error = error
+        if phase == "cancelling" {
+            do {
+                if let url, FileManager.default.fileExists(atPath: url.path) {
+                    try FileManager.default.trashItem(at: url, resultingItemURL: nil)
+                }
+                url = nil
+                error = nil
+                seconds = 0
+                accumulated = 0
+            } catch let discardError {
+                error = ExactNativeRefusal("The recording stopped, but could not be discarded: \(message(for: discardError)). The file was kept in your chosen folder.")
+            }
+        }
         tick?.stop()
         tick = nil
         phase = "idle"

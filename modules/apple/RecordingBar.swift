@@ -3,14 +3,16 @@ import AppKit
 final class RecordingBar: NSObject {
     var toggle: (() -> Void)?
     var end: (() -> Void)?
+    var cancel: (() -> Void)?
     private let panel: NSPanel
     private let timer = NSTextField(labelWithString: "00:00")
     private let state = NSTextField(labelWithString: "REC")
     private let pauseButton = NSButton(title: "Pause", target: nil, action: nil)
     private let endButton = NSButton(title: "End", target: nil, action: nil)
+    private let cancelButton = NSButton(title: "Cancel", target: nil, action: nil)
 
     override init() {
-        panel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 350, height: 60), styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
+        panel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 430, height: 60), styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
         super.init()
         panel.title = "Recording Controls"
         panel.level = .floating
@@ -42,7 +44,12 @@ final class RecordingBar: NSObject {
         endButton.target = self
         endButton.action = #selector(endRecording)
         endButton.setAccessibilityIdentifier("floating-end")
-        let row = NSStackView(views: [state, timer, pauseButton, endButton])
+        cancelButton.bezelStyle = .rounded
+        cancelButton.target = self
+        cancelButton.action = #selector(cancelRecording)
+        cancelButton.toolTip = "Cancel this recording and move its file to Trash"
+        cancelButton.setAccessibilityIdentifier("floating-cancel")
+        let row = NSStackView(views: [state, timer, pauseButton, endButton, cancelButton])
         row.orientation = .horizontal
         row.alignment = .centerY
         row.spacing = 14
@@ -65,14 +72,16 @@ final class RecordingBar: NSObject {
 
     func update(phase: String, elapsed: String) {
         timer.stringValue = elapsed
-        state.stringValue = phase == "paused" ? "PAUSED" : phase == "stopping" ? "SAVING" : "REC"
+        state.stringValue = phase == "paused" ? "PAUSED" : phase == "stopping" ? "SAVING" : phase == "cancelling" ? "CANCEL" : "REC"
         state.textColor = phase == "paused" ? .secondaryLabelColor : .systemRed
         pauseButton.title = phase == "paused" ? "Resume" : "Pause"
         pauseButton.isEnabled = phase == "recording" || phase == "paused"
         endButton.isEnabled = pauseButton.isEnabled
+        cancelButton.isEnabled = pauseButton.isEnabled
     }
 
     func close() { panel.close() }
     @objc private func toggleRecording() { toggle?() }
     @objc private func endRecording() { end?() }
+    @objc private func cancelRecording() { cancel?() }
 }

@@ -30,6 +30,7 @@ const sources: Sources = {
   pauseRecording: (_args, _store, _storage, native) => command(native, "pause"),
   resumeRecording: (_args, _store, _storage, native) => command(native, "resume"),
   stopRecording: (_args, _store, _storage, native) => command(native, 'stop'),
+  cancelRecording: (_args, _store, _storage, native) => command(native, 'cancel'),
   revealRecording: (_args, _store, _storage, native) => command(native, 'reveal'),
 };
 

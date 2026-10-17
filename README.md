@@ -1,6 +1,6 @@
 # Exact Recorder
 
-A small macOS audio recorder built with Exact. Choose a microphone and destination folder, then record uncompressed WAV audio. Pause and resume keep one recording and exclude paused time. A draggable floating bar stays above other windows with the timer, Pause/Resume, and End controls.
+A small macOS audio recorder built with Exact. Choose a microphone and destination folder, then record uncompressed WAV audio. Pause and resume keep one recording and exclude paused time. A draggable floating bar stays above other windows with the timer, Pause/Resume, End, and Cancel controls. Cancel works while recording or paused, stops microphone capture, moves only the current take to Trash, and resets the timer.
 
 ## Run
 

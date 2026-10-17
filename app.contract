@@ -27,11 +27,11 @@ component Recorder
   mutation result as shape Reply refreshes status
   derive paused = status.phase == "paused"
   derive recording = status.phase == "recording"
-  derive busy = pending(result) or status.phase == "starting" or status.phase == "stopping" or status.phase == "pausing" or status.phase == "resuming"
+  derive busy = pending(result) or status.phase == "starting" or status.phase == "stopping" or status.phase == "pausing" or status.phase == "resuming" or status.phase == "cancelling"
   derive locked = status.phase != "idle" or busy
   derive replyError = match result { case some(r) => r.error, case none => "" }
   derive error = status.error != "" ? status.error : replyError
-  derive phaseLabel = status.phase == "starting" ? "Opening microphone…" : status.phase == "stopping" ? "Saving recording…" : paused ? "Paused" : recording ? "Recording" : "Ready to record"
+  derive phaseLabel = status.phase == "starting" ? "Opening microphone…" : status.phase == "stopping" ? "Saving recording…" : status.phase == "cancelling" ? "Cancelling recording…" : paused ? "Paused" : recording ? "Recording" : "Ready to record"
   action chooseMic(id: string)
     send result = selectMicrophone(id)
   action refresh
@@ -47,6 +47,8 @@ component Recorder
       send result = pauseRecording()
   action stop
     send result = stopRecording()
+  action cancel
+    send result = cancelRecording()
   action reveal
     send result = revealRecording()
   view
@@ -86,6 +88,10 @@ component Recorder
                   text (paused ? "Resume" : "Pause")
                 button press=stop disabled=((not recording and not paused) or busy) buttonStyle="bordered" testId="stop"
                   text "Stop"
+              if locked
+                row justify-content="center"
+                  button press=cancel disabled=((not recording and not paused) or busy) testId="cancel" aria-label="Cancel and discard recording"
+                    text "Cancel Recording"
               if error != ""
                 text error color="-exact-system-red" role="alert" overflow-wrap="anywhere" testId="error"
               if status.filePath != ""

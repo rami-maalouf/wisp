@@ -53,3 +53,34 @@ test "refresh microphones and display the idle screen"
   expect text "elapsed" == "00:00"
   expect tree missing "saved"
   expect tree missing "error"
+
+test "cancel active and paused recordings without saving, then record again"
+  size 400x540
+  tap "start"
+  clock data
+  clock +2000
+  tap "cancel"
+  clock data
+  expect text "phase" == "Ready to record"
+  expect text "elapsed" == "00:00"
+  expect tree missing "saved"
+  expect tree missing "error"
+  expect enabled "start"
+  tap "start"
+  clock data
+  clock +1000
+  tap "pause"
+  clock data
+  expect enabled "cancel"
+  tap "cancel"
+  clock data
+  expect text "elapsed" == "00:00"
+  expect tree missing "saved"
+  expect tree missing "error"
+  tap "start"
+  clock data
+  clock +1000
+  tap "stop"
+  clock data
+  expect tree has "saved"
+  expect tree missing "error"

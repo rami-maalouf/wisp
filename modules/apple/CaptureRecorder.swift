@@ -105,7 +105,7 @@ final class CaptureRecorder: NSObject, AVCaptureAudioDataOutputSampleBufferDeleg
         } catch { complete(error: error) }
     }
 
-    func stop() { queue.async { self.complete(error: nil) } }
+    func stop(validate: Bool = true) { queue.async { self.complete(error: nil, validate: validate) } }
 
     func pause() {
         queue.async {
@@ -130,7 +130,7 @@ final class CaptureRecorder: NSObject, AVCaptureAudioDataOutputSampleBufferDeleg
         }
     }
 
-    private func complete(error: Error?) {
+    private func complete(error: Error?, validate: Bool = true) {
         guard !completed, let destination else { return }
         completed = true
         if let observer { NotificationCenter.default.removeObserver(observer) }
@@ -141,7 +141,7 @@ final class CaptureRecorder: NSObject, AVCaptureAudioDataOutputSampleBufferDeleg
         output = nil
         file = nil
         var resultError = error
-        if resultError == nil {
+        if resultError == nil, validate {
             do {
                 if try !receivedSignal || !AudioSignal.containsSignal(at: destination) {
                     resultError = ExactNativeRefusal("No microphone signal was recorded. Check the microphone's mute switch and connection. Any recording file was kept in your chosen folder.")
