@@ -26,6 +26,7 @@ The app and repository are named Wisp (`wisp`). Keep the internal bundle identif
 
 ## Recorder design and verification
 
+- Wisp's turquoise palette is defined in `app.tamber`; use its brand and surface tokens for branded UI. Keep `brand.fill` consistent with the native `AccentColor` catalog and manifest theme color. Errors, warnings, and recording status retain their semantic colors. Logo sources and generation prompts live in `assets/`.
 - This is a compact native Mac utility. Use system typography and semantic colors. The timer and recording action are the focal point; microphone and destination belong in one settings group; saved-file actions belong together.
 - Show Record when idle and Pause/Resume, Finish, and a secondary Cancel while active. Preserve visible state and accessible names for icon-only floating controls.
 - Compile with `bun exact.mjs contract build app.contract --json`, then run `bun exact.mjs test macos`. These tests use simulated audio and do not exercise the physical microphone or floating panel.

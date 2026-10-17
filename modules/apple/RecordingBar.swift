@@ -42,7 +42,7 @@ final class RecordingBar: NSObject {
         pauseButton.action = #selector(toggleRecording)
         pauseButton.setAccessibilityIdentifier("floating-pause")
         endButton.bezelStyle = .rounded
-        endButton.contentTintColor = .systemRed
+        endButton.contentTintColor = .systemTeal
         endButton.target = self
         endButton.action = #selector(endRecording)
         endButton.setAccessibilityIdentifier("floating-end")

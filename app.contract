@@ -70,31 +70,34 @@ component Recorder
   action trashRecent(id: string)
     send result = trashRecentRecording(id)
   view
-    main testId="root" width="100%" height="100%"
+    main testId="root" width="100%" height="100%" background-color="surface.page" accent-color="brand.fill"
       column navigationScroll="content" position="absolute" inset=0 display="flex" flex-direction="column"
         scroll id="content" flex=1 min-height=0
           column padding=20 gap=16 max-width=440 margin="0 auto" box-sizing="border-box" width="100%"
-            column align-items="center" gap=12 padding="12px 20px 16px" testId="session"
+            column align-items="center" gap=12 padding="4px 20px 16px" testId="session"
+              row align-items="center" gap=8 padding="0 0 4px"
+                image "assets/wisp-icon.png" width=28 height=28 border-radius=7 aria-hidden=true
+                text "Wisp" font-size=16 font-weight=600 color="-exact-label"
               text phaseLabel font="-exact-subheadline" font-weight=500 color=(recording ? "-exact-system-red" : "-exact-secondary-label") testId="phase"
               text status.elapsed font-size=48 font-weight=400 font-variant-numeric="tabular-nums" white-space="nowrap" testId="elapsed"
               row gap=4 height=16 align-items="center" justify-content="center" aria-label=(status.inputLevel == "" ? "Microphone input level" : status.inputLevel) title=status.inputLevel
                 for threshold in [0.08, 0.16, 0.24, 0.32, 0.40, 0.48, 0.56, 0.64, 0.72, 0.80, 0.88, 0.96] key=threshold
-                  view width=12 height=4 border-radius=2 background-color=(recording and status.level >= threshold ? (threshold > 0.88 ? "-exact-system-orange" : "-exact-system-green") : "-exact-tertiary-fill") aria-hidden=true
+                  view width=12 height=4 border-radius=2 background-color=(recording and status.level >= threshold ? (threshold > 0.88 ? "-exact-system-orange" : "brand.ink") : "-exact-tertiary-fill") aria-hidden=true
               row gap=28 justify-content="center" align-items="center" min-height=80
                 if not locked
-                  RoundButton(label="Record", tint=some("-exact-system-red"), press=start, disabled=(not status.available or status.selectedMic == ""), testId="start")
+                  RoundButton(label="Record", tint=some("AccentColor"), press=start, disabled=(not status.available or status.selectedMic == ""), testId="start")
                 else
                   RoundButton(label=(paused ? "Resume" : "Pause"), tint=none, press=togglePause, disabled=((not recording and not paused) or busy), testId="pause")
-                  RoundButton(label="Finish", tint=some("-exact-system-red"), press=stop, disabled=((not recording and not paused) or busy), testId="stop")
+                  RoundButton(label="Finish", tint=some("AccentColor"), press=stop, disabled=((not recording and not paused) or busy), testId="stop")
               row min-height=24 align-items="center" justify-content="center"
                 if locked
                   button press=cancel disabled=((not recording and not paused) or busy) buttonStyle="plain" testId="cancel" aria-label="Cancel and discard recording"
                     text "Cancel recording"
                 else
                   text "Record from your microphone" font="-exact-footnote" color="-exact-secondary-label"
-            column gap=0 padding="4px 14px" border-radius=12 background-color="-exact-secondary-background" border="1px solid -exact-separator" testId="settings"
+            column gap=0 padding="4px 14px" border-radius=12 background-color="surface.card" border="1px solid border.hairline" testId="settings"
               row align-items="center" gap=10 padding="12px 0"
-                image "symbol:microphone" width=18 height=18 color="-exact-secondary-label"
+                image "symbol:microphone" width=18 height=18 color="brand.ink"
                 column gap=4 flex=1 min-width=0
                   text "Microphone" title="Use a Mac or USB microphone to preserve Bluetooth headphone playback quality." font="-exact-caption1" color="-exact-secondary-label"
                   select value=status.selectedMic change=chooseMic disabled=(locked or not status.available) aria-label="Microphone" testId="microphone"
@@ -104,19 +107,19 @@ component Recorder
                       option mic.name value=mic.id
                 button press=refresh disabled=locked buttonStyle="plain" aria-label="Refresh microphones" title="Refresh microphones" testId="refresh"
                   image "symbol:refresh" font-size=14
-              hr border="0" height=1 background-color="-exact-separator"
+              hr border="0" height=1 background-color="border.hairline"
               row align-items="center" gap=10 padding="12px 0"
-                image "symbol:sf/folder" width=18 height=18 color="-exact-secondary-label"
+                image "symbol:sf/folder" width=18 height=18 color="brand.ink"
                 column gap=4 flex=1 min-width=0
                   text "Save recordings to" font="-exact-caption1" color="-exact-secondary-label"
                   button press=openFolder disabled=(busy or not status.available or status.folder == "") appearance="none" title=`Open ${status.folder} in Finder` aria-label="Open recording folder in Finder" testId="open-folder"
-                    text (status.folderName == "" ? "Choose a folder" : status.folderName) font-size=13 font-weight=500 color="-exact-link" overflow-wrap="anywhere" testId="folder"
+                    text (status.folderName == "" ? "Choose a folder" : status.folderName) font-size=13 font-weight=500 color="brand.ink" overflow-wrap="anywhere" testId="folder"
                 button press=folder disabled=(locked or not status.available) buttonStyle="plain" testId="choose-folder"
                   text "Change…"
             if error != ""
               text error color="-exact-system-red" role="alert" overflow-wrap="anywhere" font="-exact-footnote" testId="error"
             if status.filePath != ""
-              column gap=10 padding=14 border-radius=12 background-color="-exact-secondary-background" border="1px solid -exact-separator" testId="saved"
+              column gap=10 padding=14 border-radius=12 background-color="surface.card" border="1px solid border.hairline" testId="saved"
                 row align-items="center" gap=8
                   image (status.fileWarning == "" ? "symbol:select-fill" : "symbol:alert") width=18 height=18 color=(status.fileWarning == "" ? "-exact-system-green" : "-exact-system-orange")
                   text (status.fileWarning == "" ? "Recording saved" : "Recording needs attention") font-weight=600 flex=1
@@ -142,7 +145,7 @@ component Recorder
               else if status.recents.length == 0
                 text "No audio files in this folder yet." font="-exact-footnote" color="-exact-secondary-label" padding="12px 0" testId="recents-empty"
               else
-                column gap=0 border-radius=12 border="1px solid -exact-separator" background-color="-exact-secondary-background"
+                column gap=0 border-radius=12 border="1px solid border.hairline" background-color="surface.card"
                   for recording, index in status.recents key=recording.id
                     row align-items="center" gap=12 padding=12
                       button press=openRecent(recording.id) disabled=locked appearance="none" flex=1 min-width=0 aria-label=`Open ${recording.name}` title="Open recording" testId=`recent-open-${index}`
@@ -152,6 +155,6 @@ component Recorder
                       button press=trashRecent(recording.id) disabled=locked buttonStyle="plain" aria-label=`Move ${recording.name} to Trash` title="Move to Trash" testId=`recent-trash-${index}` padding=6
                         image "symbol:sf/xmark" font-size=12
                     if index < status.recents.length - 1
-                      hr border="0" height=1 background-color="-exact-separator" margin="0 12px"
+                      hr border="0" height=1 background-color="border.hairline" margin="0 12px"
                 if status.recents.length == 20
                   text "Showing the 20 most recent files. Open the folder for more." font="-exact-caption1" color="-exact-secondary-label"

@@ -1,0 +1,8 @@
+tamber wisp
+
+theme
+  surface.page = light-dark(#F2F8F7, #0C2427)
+  surface.card = light-dark(#FFFFFF, #123034)
+  border.hairline = light-dark(#D2E3E1, #25484B)
+  brand.fill = #08777B scheme=fixed
+  brand.ink = light-dark(#086B70, #69DAD2)

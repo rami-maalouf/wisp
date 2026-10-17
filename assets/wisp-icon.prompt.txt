@@ -1,0 +1,9 @@
+Generated with the built-in image generation tool.
+
+Use case: logo-brand. Create the final square macOS application icon artwork for Wisp, a lightweight, simple but powerful audio recorder. One bold, beautifully balanced abstract mark: a single flowing ribbon of sound curling into a subtle lowercase w, suggesting a wisp of air and an audio waveform. The mark is warm-white to pale luminous turquoise, on an edge-to-edge deep dark turquoise background (#075E61 / #063F43) with a very subtle smooth tonal depth. Restrained premium native Mac utility aesthetic, precise soft curves, confident thick silhouette, generous negative space, instantly readable at tiny dock sizes. Center the mark occupying approximately 60% of the canvas. Flat frontal view, square 1024x1024 composition, full bleed background, no baked-in rounded square corners, no outer shadow, no perspective, no mockup, no text, no lettering, no microphone illustration, no gradients in rainbow colors, no tiny details, no borders. Deliver just the finished icon.
+
+The generated output is 1254 by 1254 pixels. Exact derives native icon sizes from the manifest asset. The original image is retained without resampling.
+
+Native icon edit, built-in image generation tool with transparent background:
+
+Prepare this exact Wisp artwork as a native macOS app icon. Preserve the turquoise background, flowing pale turquoise W ribbon, colors, proportions and design. The only change is its outer silhouette and canvas: place the complete artwork inside a centered rounded square with continuous smooth corners, occupying about 82% of a square canvas, with fully transparent outer margins on all four sides. Clip the background cleanly to the rounded square. Use a subtle soft native icon shadow. Keep the W comfortably within the rounded square. No text, no extra marks, no mockup, no perspective. Actual transparent pixels outside the app icon, not a white or checkerboard background.

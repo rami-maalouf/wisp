@@ -35,5 +35,14 @@
       "ios": "0",
       "linux": "0"
     }
-  }
+  },
+  "theme_color": "#08777B",
+  "icons": [
+    {
+      "src": "assets/wisp-app-icon.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
 }
