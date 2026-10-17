@@ -5,7 +5,7 @@ export const grants = 'device.microphone purpose.microphone';
 
 const unavailable: Result<'recorderStatus'> = {
   available: false, phase: 'idle', microphones: [], selectedMic: '', folder: '',
-  elapsed: '00:00', fileName: '', filePath: '', error: 'Recording requires the macOS app.', inputLevel: '', fileWarning: '', level: 0, folderName: '',
+  elapsed: '00:00', fileName: '', filePath: '', error: 'Recording requires the macOS app.', inputLevel: '', fileWarning: '', level: 0, folderName: '', recents: [], recentError: '',
 };
 
 async function command(native: NativeModule | null | undefined, op: string, id = ''): Promise<Result<'startRecording'>> {
@@ -33,6 +33,10 @@ const sources: Sources = {
   cancelRecording: (_args, _store, _storage, native) => command(native, 'cancel'),
   revealRecording: (_args, _store, _storage, native) => command(native, 'reveal'),
   trashRecording: (_args, _store, _storage, native) => command(native, 'trash'),
+  openRecordingFolder: (_args, _store, _storage, native) => command(native, 'open-folder'),
+  refreshRecordings: (_args, _store, _storage, native) => command(native, 'refresh-recents'),
+  openRecentRecording: ([id], _store, _storage, native) => command(native, 'open-recent', id),
+  trashRecentRecording: ([id], _store, _storage, native) => command(native, 'trash-recent', id),
 };
 
 export const answer: Answer = (source, args, store, storage, native) =>

@@ -33,6 +33,7 @@ test "select a microphone and folder, save recordings, and trash the last file"
   expect text "phase" == "Ready to record"
   expect tree has "saved"
   expect tree missing "error"
+  expect state status.recents.length == 1
   expect enabled "start"
   expect tree missing "stop"
   tap "start"
@@ -44,6 +45,7 @@ test "select a microphone and folder, save recordings, and trash the last file"
   clock data
   expect tree has "saved"
   expect tree missing "error"
+  expect state status.recents.length == 2
 
   tap "trash"
   clock data
@@ -52,6 +54,72 @@ test "select a microphone and folder, save recordings, and trash the last file"
   expect state status.fileWarning == ""
   expect tree missing "error"
   expect enabled "start"
+  expect state status.recents.length == 1
+  tap "recent-open-0"
+  clock data
+  expect tree missing "error"
+  tap "recent-trash-0"
+  clock data
+  expect state status.recents.length == 0
+  expect tree has "recents-empty"
+
+test "recents follow the selected folder and deleting the newest clears the saved card"
+  size 380x540
+  tap "start"
+  clock data
+  clock +1000
+  tap "stop"
+  clock data
+  expect state status.recents.length == 1
+  tap "refresh-recents"
+  clock data
+  expect state status.recents.length == 1
+  tap "recent-trash-0"
+  clock data
+  expect state status.recents.length == 0
+  expect tree missing "saved"
+  expect tree missing "error"
+  tap "start"
+  clock data
+  clock +1000
+  tap "stop"
+  clock data
+  expect state status.recents.length == 1
+  tap "choose-folder"
+  clock data
+  expect state status.recents.length == 0
+  expect tree missing "saved"
+  expect tree missing "error"
+  expect tree has "recents-empty"
+
+test "deleting one recent preserves other files"
+  size 440x600
+  tap "start"
+  clock data
+  clock +1000
+  tap "stop"
+  clock data
+  tap "start"
+  clock data
+  clock +1000
+  tap "stop"
+  clock data
+  tap "start"
+  clock data
+  clock +1000
+  tap "stop"
+  clock data
+  expect state status.recents.length == 3
+  tap "recent-trash-1"
+  clock data
+  expect state status.recents.length == 2
+  expect tree has "saved"
+  expect tree missing "error"
+  tap "recent-trash-0"
+  clock data
+  expect state status.recents.length == 1
+  expect tree missing "saved"
+  expect tree missing "error"
 
 test "refresh microphones and display the idle screen"
   size 400x540
@@ -61,6 +129,10 @@ test "refresh microphones and display the idle screen"
   expect text "elapsed" == "00:00"
   expect tree missing "saved"
   expect tree missing "error"
+  tap "open-folder"
+  clock data
+  expect tree missing "error"
+  expect tree has "recents-empty"
 
 test "cancel active and paused recordings without saving, then record again"
   size 400x540

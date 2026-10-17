@@ -26,6 +26,11 @@ final class Recorder: ExactModule {
     private var quitDone: (() -> Void)?
     private var destroyed = false
     private var panel: NSOpenPanel?
+    private let libraryQueue = DispatchQueue(label: "com.rami.exact-recorder.library", qos: .utility)
+    private var recents: [[String: String]] = []
+    private var recentError = ""
+    private var recentGeneration = 0
+    private var activationObserver: NSObjectProtocol?
     private var settingsURL: URL { context.data.appendingPathComponent("recorder-settings.json") }
     private var elapsedText: String { String(format: "%02d:%02d", seconds / 60, seconds % 60) }
 
@@ -42,6 +47,50 @@ final class Recorder: ExactModule {
             loadSettings()
         }
         refreshMicrophones()
+        reloadRecents()
+        if !context.agent {
+            activationObserver = NotificationCenter.default.addObserver(forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main) { [weak self] _ in
+                self?.reloadRecents()
+            }
+        }
+    }
+
+    private func reloadRecents() {
+        guard phase == "idle", let folder else { return }
+        recentGeneration += 1
+        let generation = recentGeneration
+        let apply: (Result<[RecordingItem], Error>) -> Void = { [weak self] result in
+            guard let self, !self.destroyed, self.recentGeneration == generation, self.phase == "idle" else { return }
+            switch result {
+            case .success(let items):
+                let formatter = DateFormatter()
+                formatter.dateStyle = .medium
+                formatter.timeStyle = .short
+                self.recents = items.prefix(20).map { $0.status(dateFormatter: formatter) }
+                self.recentError = ""
+            case .failure(let error):
+                self.recents = []
+                self.recentError = "Could not read this folder: \(self.message(for: error))"
+            }
+            self.context.changed("status")
+        }
+        if context.agent {
+            apply(Result { try RecordingLibrary.recordings(in: folder) })
+        } else {
+            libraryQueue.async {
+                let result = Result { try RecordingLibrary.recordings(in: folder) }
+                DispatchQueue.main.async { apply(result) }
+            }
+        }
+    }
+
+    private func trashFile(_ url: URL) throws {
+        if FileManager.default.fileExists(atPath: url.path) {
+            if context.agent { try FileManager.default.removeItem(at: url) }
+            else { try FileManager.default.trashItem(at: url, resultingItemURL: nil) }
+        }
+        if lastFile == url { lastFile = nil; fileWarning = "" }
+        reloadRecents()
     }
 
     private func refreshMicrophones() {
@@ -60,7 +109,7 @@ final class Recorder: ExactModule {
         ["available": true, "phase": phase, "microphones": microphones, "selectedMic": selectedMic,
          "folder": folder?.path ?? "", "elapsed": elapsedText,
          "fileName": lastFile?.lastPathComponent ?? "", "filePath": lastFile?.path ?? "", "error": errorText, "inputLevel": inputLevel, "fileWarning": fileWarning,
-         "level": level, "folderName": folder?.lastPathComponent ?? ""]
+         "level": level, "folderName": folder?.lastPathComponent ?? "", "recents": recents, "recentError": recentError]
     }
 
     override func call(_ request: [String: Any]) throws -> [String: Any] {
@@ -76,7 +125,7 @@ final class Recorder: ExactModule {
 
     override func later(_ request: [String: Any], reply: ExactReply) {
         let op = request["op"] as? String ?? ""
-        if phase != "idle" && !["stop", "pause", "resume", "cancel", "reveal"].contains(op) {
+        if phase != "idle" && !["stop", "pause", "resume", "cancel", "reveal", "open-folder"].contains(op) {
             return self.reply(reply, error: "Stop the current recording before changing its settings.")
         }
         switch op {
@@ -94,15 +143,31 @@ final class Recorder: ExactModule {
         case "cancel": cancel(reply)
         case "pause": pause(reply)
         case "resume": resume(reply)
+        case "open-folder":
+            guard let folder else { return self.reply(reply, error: "Choose a recording folder first.") }
+            do {
+                try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+                if !context.agent, !NSWorkspace.shared.open(folder) { throw ExactNativeRefusal("The folder could not be opened in Finder.") }
+                self.reply(reply)
+            } catch { self.reply(reply, error: message(for: error)) }
+        case "refresh-recents":
+            reloadRecents()
+            self.reply(reply)
+        case "open-recent", "trash-recent":
+            guard let folder else { return self.reply(reply, error: "Choose a recording folder first.") }
+            do {
+                let url = try RecordingLibrary.recording(id: request["id"] as? String ?? "", in: folder)
+                if op == "trash-recent" { try trashFile(url) }
+                else if !context.agent, !NSWorkspace.shared.open(url) { throw ExactNativeRefusal("The recording could not be opened.") }
+                self.reply(reply)
+            } catch {
+                reloadRecents()
+                self.reply(reply, error: message(for: error))
+            }
         case "trash":
             guard let lastFile else { return self.reply(reply, error: "There is no saved recording to delete.") }
             do {
-                if FileManager.default.fileExists(atPath: lastFile.path) {
-                    if context.agent { try FileManager.default.removeItem(at: lastFile) }
-                    else { try FileManager.default.trashItem(at: lastFile, resultingItemURL: nil) }
-                }
-                self.lastFile = nil
-                fileWarning = ""
+                try trashFile(lastFile)
                 self.reply(reply)
             } catch {
                 self.reply(reply, error: "Could not move the recording to Trash: \(message(for: error))")
@@ -117,6 +182,10 @@ final class Recorder: ExactModule {
     private func chooseFolder(_ reply: ExactReply) {
         if context.agent {
             folder = context.temporary.appendingPathComponent("chosen-recordings")
+            lastFile = nil
+            fileWarning = ""
+            recents = []
+            reloadRecents()
             return self.reply(reply)
         }
         let panel = NSOpenPanel()
@@ -135,6 +204,10 @@ final class Recorder: ExactModule {
                 self.scopedFolder?.stopAccessingSecurityScopedResource()
                 self.scopedFolder = url.startAccessingSecurityScopedResource() ? url : nil
                 self.folder = url
+                self.lastFile = nil
+                self.fileWarning = ""
+                self.recents = []
+                self.reloadRecents()
                 do { try self.saveSettings() } catch { return self.reply(reply, error: error.localizedDescription) }
             }
             self.reply(reply)
@@ -341,6 +414,7 @@ final class Recorder: ExactModule {
         if let reply = startReply { startReply = nil; self.reply(reply, error: errorText) }
         if let reply = stopReply { stopReply = nil; self.reply(reply, error: errorText) }
         if let reply = controlReply { controlReply = nil; self.reply(reply, error: errorText) }
+        reloadRecents()
         context.changed("status")
         quitDone?()
         quitDone = nil
@@ -401,6 +475,7 @@ final class Recorder: ExactModule {
 
     override func destroy() {
         destroyed = true
+        if let activationObserver { NotificationCenter.default.removeObserver(activationObserver) }
         tick?.stop()
         panel?.cancel(nil)
         floatingBar?.close()

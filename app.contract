@@ -4,6 +4,11 @@ shape Microphone
   id: string
   name: string
 
+shape RecentRecording
+  id: string
+  name: string
+  detail: string
+
 shape Status
   available: bool
   phase: string
@@ -18,13 +23,15 @@ shape Status
   fileWarning: string
   level: number
   folderName: string
+  recents: RecentRecording[]
+  recentError: string
 
 shape Reply
   ok: bool
   error: string
 
 component Recorder
-  resource status = recorderStatus() as shape Status else empty(available=false, phase="idle", microphones=[], selectedMic="", folder="", elapsed="00:00", fileName="", filePath="", error="", inputLevel="", fileWarning="", level=0, folderName="")
+  resource status = recorderStatus() as shape Status else empty(available=false, phase="idle", microphones=[], selectedMic="", folder="", elapsed="00:00", fileName="", filePath="", error="", inputLevel="", fileWarning="", level=0, folderName="", recents=[], recentError="")
   mutation result as shape Reply refreshes status
   derive paused = status.phase == "paused"
   derive recording = status.phase == "recording"
@@ -54,6 +61,14 @@ component Recorder
     send result = revealRecording()
   action trash
     send result = trashRecording()
+  action openFolder
+    send result = openRecordingFolder()
+  action refreshRecents
+    send result = refreshRecordings()
+  action openRecent(id: string)
+    send result = openRecentRecording(id)
+  action trashRecent(id: string)
+    send result = trashRecentRecording(id)
   view
     main testId="root" width="100%" height="100%"
       column navigationScroll="content" position="absolute" inset=0 display="flex" flex-direction="column"
@@ -94,7 +109,8 @@ component Recorder
                 image "symbol:sf/folder" width=18 height=18 color="-exact-secondary-label"
                 column gap=4 flex=1 min-width=0
                   text "Save recordings to" font="-exact-caption1" color="-exact-secondary-label"
-                  text (status.folderName == "" ? "Choose a folder" : status.folderName) font-size=13 font-weight=500 overflow-wrap="anywhere" title=status.folder testId="folder"
+                  button press=openFolder disabled=(busy or not status.available or status.folder == "") appearance="none" title=`Open ${status.folder} in Finder` aria-label="Open recording folder in Finder" testId="open-folder"
+                    text (status.folderName == "" ? "Choose a folder" : status.folderName) font-size=13 font-weight=500 color="-exact-link" overflow-wrap="anywhere" testId="folder"
                 button press=folder disabled=(locked or not status.available) buttonStyle="plain" testId="choose-folder"
                   text "Change…"
             if error != ""
@@ -114,3 +130,28 @@ component Recorder
                   view flex=1
                   button press=trash disabled=locked testId="trash" aria-label="Move saved recording to Trash"
                     text "Move to Trash"
+            column gap=10 testId="recents"
+              row align-items="center" gap=8
+                column gap=3 flex=1 min-width=0
+                  text "Recents" font-weight=600
+                  text "Latest audio files in this folder" font="-exact-caption1" color="-exact-secondary-label"
+                button press=refreshRecents disabled=locked buttonStyle="plain" title="Refresh recent recordings" aria-label="Refresh recent recordings" testId="refresh-recents"
+                  image "symbol:refresh" font-size=14
+              if status.recentError != ""
+                text status.recentError font="-exact-footnote" color="-exact-system-red" overflow-wrap="anywhere" role="alert" testId="recents-error"
+              else if status.recents.length == 0
+                text "No audio files in this folder yet." font="-exact-footnote" color="-exact-secondary-label" padding="12px 0" testId="recents-empty"
+              else
+                column gap=0 border-radius=12 border="1px solid -exact-separator" background-color="-exact-secondary-background"
+                  for recording, index in status.recents key=recording.id
+                    row align-items="center" gap=12 padding=12
+                      button press=openRecent(recording.id) disabled=locked appearance="none" flex=1 min-width=0 aria-label=`Open ${recording.name}` title="Open recording" testId=`recent-open-${index}`
+                        column gap=4 align-items="flex-start" min-width=0
+                          text recording.name font-size=13 font-weight=500 overflow-wrap="anywhere"
+                          text recording.detail font="-exact-caption1" color="-exact-secondary-label" overflow-wrap="anywhere"
+                      button press=trashRecent(recording.id) disabled=locked buttonStyle="plain" aria-label=`Move ${recording.name} to Trash` title="Move to Trash" testId=`recent-trash-${index}` padding=6
+                        image "symbol:sf/xmark" font-size=12
+                    if index < status.recents.length - 1
+                      hr border="0" height=1 background-color="-exact-separator" margin="0 12px"
+                if status.recents.length == 20
+                  text "Showing the 20 most recent files. Open the folder for more." font="-exact-caption1" color="-exact-secondary-label"

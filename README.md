@@ -18,6 +18,8 @@ bun exact.mjs mac --bundle
 
 The build prints the path to `Exact Recorder.app`. The microphone and destination folder are remembered between launches. Microphone permission is requested when recording starts. Stop or End finishes the WAV file before reporting it saved. Show in Finder reveals the last completed recording. Move to Trash deletes that saved take from its folder while keeping it recoverable in macOS Trash.
 
+Click the destination folder name to open it in Finder. Recents shows the latest 20 audio files directly inside that folder, newest modification first, including files made outside this app. Click a filename to open it in your default audio app, or its X to move it to Trash. The list refreshes after saving, deleting, changing folders, returning to the app, or pressing its refresh button. Hidden files, subfolders, and symbolic links are excluded.
+
 ## Playback quality
 
 The recorder captures only the selected microphone. It does not capture system output, enable microphone monitoring, change the default output device, adjust playback volume, or enable voice processing. It initially prefers the built-in microphone, then another non-Bluetooth microphone.
@@ -32,6 +34,7 @@ For normal headphone playback while recording, select the Mac microphone or a wi
 - `modules/apple/CaptureRecorder.swift`: sample-buffer capture, pause/resume, signal levels, and file finalization on a serial queue.
 - `modules/apple/PCMNormalizer.swift`: conversion based on each buffer’s actual PCM layout, including USB microphone format changes.
 - `modules/apple/RecordingBar.swift`: nonactivating floating AppKit panel.
+- `modules/apple/RecordingLibrary.swift`: folder-backed recent audio files and validation of file actions.
 
 The intended platform is macOS 14 or later. The generated web/iOS/Linux scaffolds are not supported recording targets; the web data source reports that recording requires macOS.
 
@@ -42,6 +45,8 @@ bun exact.mjs contract build app.contract --json
 bun exact.mjs test macos
 swiftc modules/apple/AudioSignal.swift modules/apple/PCMNormalizer.swift tests/AudioSignalTests.swift -o .exact/audio-signal-tests
 .exact/audio-signal-tests
+swiftc modules/apple/RecordingLibrary.swift tests/RecordingLibraryTests.swift -o .exact/recording-library-tests
+.exact/recording-library-tests
 bunx --package typescript tsc --noEmit --strict --target ES2022 --module esnext --moduleResolution bundler app.ts
 ```
 
