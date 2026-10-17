@@ -12,6 +12,7 @@ final class Recorder: ExactModule {
     private var lastFile: URL?
     private var errorText = ""
     private var inputLevel = ""
+    private var level = 0.0
     private var fileWarning = ""
     private var startedAt = 0.0
     private var accumulated = 0.0
@@ -58,7 +59,8 @@ final class Recorder: ExactModule {
     private func status() -> [String: Any] {
         ["available": true, "phase": phase, "microphones": microphones, "selectedMic": selectedMic,
          "folder": folder?.path ?? "", "elapsed": elapsedText,
-         "fileName": lastFile?.lastPathComponent ?? "", "filePath": lastFile?.path ?? "", "error": errorText, "inputLevel": inputLevel, "fileWarning": fileWarning]
+         "fileName": lastFile?.lastPathComponent ?? "", "filePath": lastFile?.path ?? "", "error": errorText, "inputLevel": inputLevel, "fileWarning": fileWarning,
+         "level": level, "folderName": folder?.lastPathComponent ?? ""]
     }
 
     override func call(_ request: [String: Any]) throws -> [String: Any] {
@@ -146,6 +148,7 @@ final class Recorder: ExactModule {
         phase = "starting"
         errorText = ""
         inputLevel = "Waiting for microphone signal…"
+        level = 0
         lastFile = nil
         fileWarning = ""
         startReply = reply
@@ -212,7 +215,12 @@ final class Recorder: ExactModule {
             self.capture?.readLevel { [weak self] power in
                 guard let self, self.phase == "recording" else { return }
                 let label = power.map { $0 > -90 ? String(format: "Input level: %.0f dB", $0) : "No microphone signal - check mute and connection" } ?? "Waiting for microphone signal…"
-                if label != self.inputLevel { self.inputLevel = label; self.context.changed("status") }
+                let level = power.map { max(0, min(1, (Double($0) + 60) / 60)) } ?? 0
+                if label != self.inputLevel || level != self.level {
+                    self.inputLevel = label
+                    self.level = level
+                    self.context.changed("status")
+                }
             }
             self.scheduleTick()
         }
@@ -315,6 +323,7 @@ final class Recorder: ExactModule {
         tick = nil
         phase = "idle"
         inputLevel = ""
+        level = 0
         floatingBar?.close()
         floatingBar = nil
         capture = nil

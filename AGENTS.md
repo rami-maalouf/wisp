@@ -19,3 +19,12 @@ Install `snapback4@0.4.29` above; ../exact2/snapback4/README.md has setup and se
 Generated, so don't edit: `exact.mjs`, `rust-toolchain.toml`, `.cargo/config.toml`,
 `Cargo.toml`'s `[patch.crates-io]` and this block.
 <!-- exact:end -->
+
+## Recorder design and verification
+
+- This is a compact native Mac utility. Use system typography and semantic colors. The timer and recording action are the focal point; microphone and destination belong in one settings group; saved-file actions belong together.
+- Show Record when idle and Pause/Resume, Finish, and a secondary Cancel while active. Preserve visible state and accessible names for icon-only floating controls.
+- Compile with `bun exact.mjs contract build app.contract --json`, then run `bun exact.mjs test macos`. These tests use simulated audio and do not exercise the physical microphone or floating panel.
+- Build the desktop app explicitly with `bun exact.mjs mac --bundle` before relaunching. The test executable and desktop bundle are different outputs.
+- Inspect idle, recording, paused, saved, and error states at the default and minimum window sizes. Check light and dark appearances using the agent's preference controls; inspect the real bundled app and floating panel too. Do not interrupt an existing recording to relaunch.
+- Use `--chrome platform` for native agent screenshots. The current framework has no `verify macos` command. Do not interpret web verification or passing state assertions as visual approval.

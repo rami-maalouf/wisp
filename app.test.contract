@@ -1,7 +1,7 @@
 test "select a microphone and folder, save recordings, and trash the last file"
   size 520x650
   expect text "phase" == "Ready to record"
-  expect disabled "stop"
+  expect tree missing "stop"
   expect enabled "start"
   type "microphone" "test-usb"
   clock data
@@ -11,7 +11,7 @@ test "select a microphone and folder, save recordings, and trash the last file"
   tap "start"
   clock data
   expect text "phase" == "Recording"
-  expect disabled "start"
+  expect tree missing "start"
   expect disabled "microphone"
   expect disabled "choose-folder"
   expect enabled "stop"
@@ -34,7 +34,7 @@ test "select a microphone and folder, save recordings, and trash the last file"
   expect tree has "saved"
   expect tree missing "error"
   expect enabled "start"
-  expect disabled "stop"
+  expect tree missing "stop"
   tap "start"
   clock data
   clock +1000

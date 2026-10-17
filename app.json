@@ -20,9 +20,9 @@
     "macos": {
       "minimumOS": "14.0",
       "window": {
-        "width": 520,
-        "height": 590,
-        "minWidth": 400,
+        "width": 440,
+        "height": 600,
+        "minWidth": 380,
         "minHeight": 540
       }
     },

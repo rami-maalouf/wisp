@@ -5,7 +5,7 @@ export const grants = 'device.microphone purpose.microphone';
 
 const unavailable: Result<'recorderStatus'> = {
   available: false, phase: 'idle', microphones: [], selectedMic: '', folder: '',
-  elapsed: '00:00', fileName: '', filePath: '', error: 'Recording requires the macOS app.', inputLevel: '', fileWarning: '',
+  elapsed: '00:00', fileName: '', filePath: '', error: 'Recording requires the macOS app.', inputLevel: '', fileWarning: '', level: 0, folderName: '',
 };
 
 async function command(native: NativeModule | null | undefined, op: string, id = ''): Promise<Result<'startRecording'>> {

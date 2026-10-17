@@ -6,13 +6,13 @@ final class RecordingBar: NSObject {
     var cancel: (() -> Void)?
     private let panel: NSPanel
     private let timer = NSTextField(labelWithString: "00:00")
-    private let state = NSTextField(labelWithString: "REC")
-    private let pauseButton = NSButton(title: "Pause", target: nil, action: nil)
-    private let endButton = NSButton(title: "End", target: nil, action: nil)
-    private let cancelButton = NSButton(title: "Cancel", target: nil, action: nil)
+    private let state = NSImageView()
+    private let pauseButton = NSButton(title: "", target: nil, action: nil)
+    private let endButton = NSButton(title: "Finish", target: nil, action: nil)
+    private let cancelButton = NSButton(title: "", target: nil, action: nil)
 
     override init() {
-        panel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 430, height: 60), styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
+        panel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 310, height: 52), styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
         super.init()
         panel.title = "Recording Controls"
         panel.level = .floating
@@ -28,14 +28,16 @@ final class RecordingBar: NSObject {
         background.blendingMode = .behindWindow
         background.state = .active
         background.wantsLayer = true
-        background.layer?.cornerRadius = 18
+        background.layer?.cornerRadius = 14
         panel.contentView = background
-        timer.font = .monospacedDigitSystemFont(ofSize: 22, weight: .medium)
+        timer.font = .monospacedDigitSystemFont(ofSize: 18, weight: .medium)
         timer.setAccessibilityLabel("Recording time")
-        state.font = .systemFont(ofSize: 11, weight: .bold)
-        state.textColor = .systemRed
-        state.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        state.image = NSImage(systemSymbolName: "circle.fill", accessibilityDescription: "Recording")
+        state.contentTintColor = .systemRed
         pauseButton.bezelStyle = .rounded
+        pauseButton.image = NSImage(systemSymbolName: "pause.fill", accessibilityDescription: "Pause recording")
+        pauseButton.imagePosition = .imageOnly
+        pauseButton.toolTip = "Pause recording"
         pauseButton.target = self
         pauseButton.action = #selector(toggleRecording)
         pauseButton.setAccessibilityIdentifier("floating-pause")
@@ -45,21 +47,32 @@ final class RecordingBar: NSObject {
         endButton.action = #selector(endRecording)
         endButton.setAccessibilityIdentifier("floating-end")
         cancelButton.bezelStyle = .rounded
+        cancelButton.isBordered = false
+        cancelButton.image = NSImage(systemSymbolName: "xmark", accessibilityDescription: "Cancel recording")
+        cancelButton.imagePosition = .imageOnly
         cancelButton.target = self
         cancelButton.action = #selector(cancelRecording)
         cancelButton.toolTip = "Cancel this recording and move its file to Trash"
         cancelButton.setAccessibilityIdentifier("floating-cancel")
-        let row = NSStackView(views: [state, timer, pauseButton, endButton, cancelButton])
+        let separator = NSBox()
+        separator.boxType = .separator
+        let row = NSStackView(views: [state, timer, pauseButton, endButton, separator, cancelButton])
         row.orientation = .horizontal
         row.alignment = .centerY
-        row.spacing = 14
+        row.spacing = 12
         row.translatesAutoresizingMaskIntoConstraints = false
         background.addSubview(row)
         NSLayoutConstraint.activate([
-            row.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 18),
-            row.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -18),
+            row.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 16),
+            row.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -16),
             row.centerYAnchor.constraint(equalTo: background.centerYAnchor),
             timer.widthAnchor.constraint(greaterThanOrEqualToConstant: 70),
+            state.widthAnchor.constraint(equalToConstant: 8),
+            state.heightAnchor.constraint(equalToConstant: 8),
+            pauseButton.widthAnchor.constraint(equalToConstant: 32),
+            cancelButton.widthAnchor.constraint(equalToConstant: 24),
+            separator.widthAnchor.constraint(equalToConstant: 1),
+            separator.heightAnchor.constraint(equalToConstant: 20),
         ])
     }
 
@@ -72,9 +85,12 @@ final class RecordingBar: NSObject {
 
     func update(phase: String, elapsed: String) {
         timer.stringValue = elapsed
-        state.stringValue = phase == "paused" ? "PAUSED" : phase == "stopping" ? "SAVING" : phase == "cancelling" ? "CANCEL" : "REC"
-        state.textColor = phase == "paused" ? .secondaryLabelColor : .systemRed
-        pauseButton.title = phase == "paused" ? "Resume" : "Pause"
+        state.contentTintColor = phase == "paused" ? .systemOrange : .systemRed
+        state.setAccessibilityLabel(phase == "paused" ? "Paused" : phase == "stopping" ? "Saving" : phase == "cancelling" ? "Cancelling" : "Recording")
+        let pauseLabel = phase == "paused" ? "Resume recording" : "Pause recording"
+        pauseButton.image = NSImage(systemSymbolName: phase == "paused" ? "play.fill" : "pause.fill", accessibilityDescription: pauseLabel)
+        pauseButton.setAccessibilityLabel(pauseLabel)
+        pauseButton.toolTip = pauseLabel
         pauseButton.isEnabled = phase == "recording" || phase == "paused"
         endButton.isEnabled = pauseButton.isEnabled
         cancelButton.isEnabled = pauseButton.isEnabled

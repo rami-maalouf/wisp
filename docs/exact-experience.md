@@ -63,3 +63,24 @@ Suggestion: make the driver default match the shipping native chrome, or clearly
 The Shure initially delivered Float32 buffers, then switched to 24-bit signed samples stored high-aligned in four bytes. Raw input measured approximately -69 to -65 dB RMS, but the automatic WAV writer produced clipped noise near -7.6 dB RMS. Removing output settings did not resolve it. The app now uses `AVCaptureAudioDataOutput`, decodes each buffer using its actual format description, rebuilds its converter when that format changes, and writes normalized samples through `AVAudioFile`. A regression test checks both format-transition directions and the saved WAV waveform.
 
 The capture startup can still emit Core Audio converter diagnostics internally. The corrected writer produced healthy samples and user-confirmed clear voice; absence of OS diagnostics is not claimed.
+
+## Why the first interface was weak
+
+The initial screen accumulated features in a loose column. Its timer, settings, inactive controls, explanatory paragraphs, and saved-file actions competed for attention. Native widgets supplied platform behavior, but did not supply an information hierarchy or a coherent composition. The implementation treated visual design as a finishing pass and accepted the screen too early.
+
+Exact's existing content-design guidance already recommends one focal point, grouped settings, and suitable content components. The failure was partly in applying that guidance. More instructions saying "make it beautiful" would not have fixed this. The useful change is an explicit visual acceptance step: choose the platform pattern and primary action before layout, inspect the actual pixels in each important state, and revise visible weaknesses before delivery. Passing state assertions does not establish good visual design.
+
+The redesign uses a compact utility layout with system typography, a tabular timer, a meter driven by actual microphone levels, and state-specific controls. Microphone and destination are grouped together. Saved-file actions live in one result card. The single-screen app no longer declares a navigation stack or displays a disabled Back button. Persistent instructional paragraphs were reduced to contextual help. The floating panel was reduced from 430 by 60 points to 310 by 52, with a status dot, timer, pause/resume symbol, Finish, and a separate cancel symbol.
+
+The manifest now defaults to a 440 by 600 content area. macOS retains a previous user's window frame, so an existing installation can remain larger. This redesign does not erase that preference.
+
+## Making the improved default repeatable
+
+- Shared agent instructions now require first-pass composition and actual rendered visual review. Project instructions specify this app's hierarchy, state checks, and the separate desktop-bundle build step.
+- A reusable desktop utility pattern would help Exact users start with appropriate density, grouped settings, state-dependent actions, and a result area. This belongs in examples and recipes first; it does not require recording-specific concepts in Contract.
+- A macOS verification command should capture a state gallery at default and minimum sizes in both appearances, identify which build was launched, and make auxiliary native windows inspectable. Screenshot review still requires judgment about clarity and composition.
+- Native screenshots should distinguish key-window and inactive-window presentation. The round button was gray in background captures, but red when the real window became active. This was normal AppKit appearance, not a missing-tint defect, and no framework workaround was added.
+
+Verification after redesign: Contract compilation returned zero diagnostics, three authored macOS flows passed, and the desktop bundle was rebuilt and relaunched. Idle, recording, paused, and saved states were captured; light, dark, and 380-point-wide layouts were inspected. A real Shure session exercised record, pause, resume, and cancel, returning to idle. The capture converter and WAV writer were unchanged. This pass did not repeat the listening comparison, force a hardware error state, or obtain a separate screenshot of the floating panel through the computer-use tool. The panel compiled, but its revised presentation remains a visual verification limit.
+
+No framework source edits, vendor patches, or generated-launcher edits were made for this redesign.
