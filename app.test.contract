@@ -1,0 +1,55 @@
+test "select a microphone and folder, record, stop, and save"
+  size 520x650
+  expect text "phase" == "Ready to record"
+  expect disabled "stop"
+  expect enabled "start"
+  type "microphone" "test-usb"
+  clock data
+  expect state status.selectedMic == "test-usb"
+  tap "choose-folder"
+  clock data
+  tap "start"
+  clock data
+  expect text "phase" == "Recording"
+  expect disabled "start"
+  expect disabled "microphone"
+  expect disabled "choose-folder"
+  expect enabled "stop"
+  clock +3000
+  expect text "elapsed" == "00:03"
+  tap "pause"
+  clock data
+  expect text "phase" == "Paused"
+  expect text "pause" == "Resume"
+  clock +5000
+  expect text "elapsed" == "00:03"
+  tap "pause"
+  clock data
+  expect text "phase" == "Recording"
+  clock +2000
+  expect text "elapsed" == "00:05"
+  tap "stop"
+  clock data
+  expect text "phase" == "Ready to record"
+  expect tree has "saved"
+  expect tree missing "error"
+  expect enabled "start"
+  expect disabled "stop"
+  tap "start"
+  clock data
+  clock +1000
+  tap "pause"
+  clock data
+  tap "stop"
+  clock data
+  expect tree has "saved"
+  expect tree missing "error"
+
+test "refresh microphones and display the idle screen"
+  size 400x540
+  tap "refresh"
+  clock data
+  expect state status.selectedMic == "test-mic"
+  expect text "elapsed" == "00:00"
+  expect tree missing "saved"
+  expect tree missing "error"
