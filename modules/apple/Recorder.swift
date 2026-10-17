@@ -92,6 +92,19 @@ final class Recorder: ExactModule {
         case "cancel": cancel(reply)
         case "pause": pause(reply)
         case "resume": resume(reply)
+        case "trash":
+            guard let lastFile else { return self.reply(reply, error: "There is no saved recording to delete.") }
+            do {
+                if FileManager.default.fileExists(atPath: lastFile.path) {
+                    if context.agent { try FileManager.default.removeItem(at: lastFile) }
+                    else { try FileManager.default.trashItem(at: lastFile, resultingItemURL: nil) }
+                }
+                self.lastFile = nil
+                fileWarning = ""
+                self.reply(reply)
+            } catch {
+                self.reply(reply, error: "Could not move the recording to Trash: \(message(for: error))")
+            }
         case "reveal":
             if let lastFile, !context.agent { NSWorkspace.shared.activateFileViewerSelecting([lastFile]) }
             self.reply(reply)

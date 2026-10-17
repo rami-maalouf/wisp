@@ -16,7 +16,7 @@ To build without launching:
 bun exact.mjs mac --bundle
 ```
 
-The build prints the path to `Exact Recorder.app`. The microphone and destination folder are remembered between launches. Microphone permission is requested when recording starts. Stop or End finishes the WAV file before reporting it saved. Show in Finder reveals the last completed recording.
+The build prints the path to `Exact Recorder.app`. The microphone and destination folder are remembered between launches. Microphone permission is requested when recording starts. Stop or End finishes the WAV file before reporting it saved. Show in Finder reveals the last completed recording. Move to Trash deletes that saved take from its folder while keeping it recoverable in macOS Trash.
 
 ## Playback quality
 

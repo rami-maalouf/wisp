@@ -32,6 +32,7 @@ const sources: Sources = {
   stopRecording: (_args, _store, _storage, native) => command(native, 'stop'),
   cancelRecording: (_args, _store, _storage, native) => command(native, 'cancel'),
   revealRecording: (_args, _store, _storage, native) => command(native, 'reveal'),
+  trashRecording: (_args, _store, _storage, native) => command(native, 'trash'),
 };
 
 export const answer: Answer = (source, args, store, storage, native) =>

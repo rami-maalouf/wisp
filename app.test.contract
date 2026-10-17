@@ -1,4 +1,4 @@
-test "select a microphone and folder, record, stop, and save"
+test "select a microphone and folder, save recordings, and trash the last file"
   size 520x650
   expect text "phase" == "Ready to record"
   expect disabled "stop"
@@ -44,6 +44,14 @@ test "select a microphone and folder, record, stop, and save"
   clock data
   expect tree has "saved"
   expect tree missing "error"
+
+  tap "trash"
+  clock data
+  expect tree missing "saved"
+  expect state status.filePath == ""
+  expect state status.fileWarning == ""
+  expect tree missing "error"
+  expect enabled "start"
 
 test "refresh microphones and display the idle screen"
   size 400x540
