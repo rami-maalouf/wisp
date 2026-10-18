@@ -55,9 +55,10 @@ test "select a microphone and folder, save recordings, and trash the last file"
   expect tree missing "error"
   expect enabled "start"
   expect state status.recents.length == 1
-  tap "recent-open-0"
+  tap "recent-reveal-0"
   clock data
   expect tree missing "error"
+  expect state status.recents.length == 1
   tap "recent-trash-0"
   clock data
   expect state status.recents.length == 0

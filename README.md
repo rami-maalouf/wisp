@@ -22,7 +22,7 @@ bun exact.mjs mac --bundle
 
 The build prints the path to `Wisp.app`. The microphone and destination folder are remembered between launches. Microphone permission is requested when recording starts. Stop or End finishes the WAV file before reporting it saved. Show in Finder reveals the last completed recording. Move to Trash deletes that saved take from its folder while keeping it recoverable in macOS Trash.
 
-Click the destination folder name to open it in Finder. Recents shows the latest 20 audio files directly inside that folder, newest modification first, including files made outside this app. Click a filename to open it in your default audio app, or its X to move it to Trash. The list refreshes after saving, deleting, changing folders, returning to the app, or pressing its refresh button. Hidden files, subfolders, and symbolic links are excluded.
+Click the destination folder name to open it in Finder. Recents shows the latest 20 audio files directly inside that folder, newest modification first, including files made outside this app. Click a filename to reveal and select it in Finder, or its X to move it to Trash. The list refreshes after saving, deleting, changing folders, returning to the app, or pressing its refresh button. Hidden files, subfolders, and symbolic links are excluded.
 
 ## Playback quality
 

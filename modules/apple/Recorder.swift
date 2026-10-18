@@ -153,12 +153,12 @@ final class Recorder: ExactModule {
         case "refresh-recents":
             reloadRecents()
             self.reply(reply)
-        case "open-recent", "trash-recent":
+        case "reveal-recent", "trash-recent":
             guard let folder else { return self.reply(reply, error: "Choose a recording folder first.") }
             do {
                 let url = try RecordingLibrary.recording(id: request["id"] as? String ?? "", in: folder)
                 if op == "trash-recent" { try trashFile(url) }
-                else if !context.agent, !NSWorkspace.shared.open(url) { throw ExactNativeRefusal("The recording could not be opened.") }
+                else if !context.agent { NSWorkspace.shared.activateFileViewerSelecting([url]) }
                 self.reply(reply)
             } catch {
                 reloadRecents()

@@ -35,7 +35,7 @@ const sources: Sources = {
   trashRecording: (_args, _store, _storage, native) => command(native, 'trash'),
   openRecordingFolder: (_args, _store, _storage, native) => command(native, 'open-folder'),
   refreshRecordings: (_args, _store, _storage, native) => command(native, 'refresh-recents'),
-  openRecentRecording: ([id], _store, _storage, native) => command(native, 'open-recent', id),
+  revealRecentRecording: ([id], _store, _storage, native) => command(native, 'reveal-recent', id),
   trashRecentRecording: ([id], _store, _storage, native) => command(native, 'trash-recent', id),
 };
 

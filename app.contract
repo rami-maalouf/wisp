@@ -65,8 +65,8 @@ component Recorder
     send result = openRecordingFolder()
   action refreshRecents
     send result = refreshRecordings()
-  action openRecent(id: string)
-    send result = openRecentRecording(id)
+  action revealRecent(id: string)
+    send result = revealRecentRecording(id)
   action trashRecent(id: string)
     send result = trashRecentRecording(id)
   view
@@ -148,7 +148,7 @@ component Recorder
                 column gap=0 border-radius=12 border="1px solid border.hairline" background-color="surface.card"
                   for recording, index in status.recents key=recording.id
                     row align-items="center" gap=12 padding=12
-                      button press=openRecent(recording.id) disabled=locked appearance="none" flex=1 min-width=0 aria-label=`Open ${recording.name}` title="Open recording" testId=`recent-open-${index}`
+                      button press=revealRecent(recording.id) disabled=locked appearance="none" flex=1 min-width=0 aria-label=`Show ${recording.name} in Finder` title="Show in Finder" testId=`recent-reveal-${index}`
                         column gap=4 align-items="flex-start" min-width=0
                           text recording.name font-size=13 font-weight=500 overflow-wrap="anywhere"
                           text recording.detail font="-exact-caption1" color="-exact-secondary-label" overflow-wrap="anywhere"
