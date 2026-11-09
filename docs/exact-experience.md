@@ -84,3 +84,11 @@ The manifest now defaults to a 440 by 600 content area. macOS retains a previous
 Verification after redesign: Contract compilation returned zero diagnostics, three authored macOS flows passed, and the desktop bundle was rebuilt and relaunched. Idle, recording, paused, and saved states were captured; light, dark, and 380-point-wide layouts were inspected. A real Shure session exercised record, pause, resume, and cancel, returning to idle. The capture converter and WAV writer were unchanged. This pass did not repeat the listening comparison, force a hardware error state, or obtain a separate screenshot of the floating panel through the computer-use tool. The panel compiled, but its revised presentation remains a visual verification limit.
 
 No framework source edits, vendor patches, or generated-launcher edits were made for this redesign.
+
+## Migration to expo/exact (2026-11-09)
+
+Framework: upstream `94b8671f70fe2e25b307a40e7fce66dc27c9f802`, consumed from `../expo-exact`. The updater refreshed the scaffold and Cargo paths; `exact lock` resolved the new dependencies.
+
+Reproduced: the first macOS test build failed because the old Apple entry point read `OUT_DIR/app.hbc` directly. The current bake supplies linked bytecode as `APP_BYTECODE`; using that value matches the current scaffold and avoids depending on a removed output file. The updater removed the old plan constants but did not migrate this bytecode reference. Framework improvement: migrate that older scaffold reference too, or diagnose it during update.
+
+Verification after the entry-point correction: Contract compilation passed and all five macOS Contract tests passed against the new runtime. Inputs remain simulated by the native test module; physical microphone capture, floating-panel visuals and installed-app replacement were not requalified. The compiler reports existing fixed-width and symbol warnings.

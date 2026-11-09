@@ -8,7 +8,9 @@ A small macOS audio recorder built with Exact. Choose a microphone and destinati
 
 ## Run
 
-Requires the sibling `../exact2` checkout and its native build dependencies.
+Clone [expo/exact](https://github.com/expo/exact) alongside this app with `git clone https://github.com/expo/exact.git ../expo-exact`, then run `bun scripts/exact.mjs setup` from that checkout. `EXACT2` can override its location. The migration baseline is `94b8671f70fe2e25b307a40e7fce66dc27c9f802`.
+
+Requires the sibling `../expo-exact` checkout and its native build dependencies.
 
 ```sh
 bun exact.mjs mac --run
@@ -62,4 +64,4 @@ After changing native code, use `bun exact.mjs mac --bundle` before launching th
 
 ## App identity
 
-Wisp retains the internal bundle identifier `com.rami.exact-recorder` from its original name so existing microphone permissions and saved preferences continue to apply. The framework dependency remains the sibling `../exact2` checkout.
+Wisp retains the internal bundle identifier `com.rami.exact-recorder` from its original name so existing microphone permissions and saved preferences continue to apply. The framework dependency remains the sibling `../expo-exact` checkout.

@@ -1,5 +1,5 @@
 {
-  "$schema": "../exact2/scripts/app.schema.json",
+  "$schema": "../expo-exact/scripts/app.schema.json",
   "name": "Wisp",
   "short_name": "Wisp",
   "id": "com.rami.exact-recorder",
